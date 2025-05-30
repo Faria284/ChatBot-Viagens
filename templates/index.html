@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Assistente de Viagens</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body class="bg-blue-50 text-gray-800">
   <div class="max-w-xl mx-auto mt-10 p-4 bg-white rounded-xl shadow-md">
@@ -17,16 +18,17 @@
   </div>
 
   <script>
-    async function sendMessage() {
-      const input = document.getElementById("userInput");
-      const chatBox = document.getElementById("chatBox");
+  async function sendMessage() {
+    const input = document.getElementById("userInput");
+    const chatBox = document.getElementById("chatBox");
 
-      if (!input.value.trim()) return;
+    if (!input.value.trim()) return;
 
-      const userMessage = input.value;
-      chatBox.innerHTML += `<div class="text-right"><strong>Tu:</strong> ${userMessage}</div>`;
-      input.value = "";
+    const userMessage = input.value;
+    chatBox.innerHTML += `<div class="text-right"><strong>Tu:</strong> ${userMessage}</div>`;
+    input.value = "";
 
+    try {
       const response = await fetch("/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -34,9 +36,32 @@
       });
 
       const data = await response.json();
-      chatBox.innerHTML += `<div><strong>Assistente:</strong> ${data.reply}</div>`;
+      console.log("Resposta recebida:", data); // Debug
+
+      if (!data.reply) {
+        chatBox.innerHTML += `<div><strong>Assistente:</strong> <em>Erro: resposta vazia.</em></div>`;
+        return;
+      }
+
+      const formatted = formatResponse(data.reply || "");
+      chatBox.innerHTML += `<div><strong>Assistente:</strong> ${formatted}</div>`;
       chatBox.scrollTop = chatBox.scrollHeight;
+
+    } catch (err) {
+      console.error("Erro ao enviar mensagem:", err);
+      chatBox.innerHTML += `<div><strong>Assistente:</strong> <em>Erro na comunicação com o servidor.</em></div>`;
     }
-  </script>
+  }
+
+  function formatResponse(text) {
+    if (!text || typeof text !== "string") return "<em>Resposta inválida</em>";
+
+    text = text.replace(/\*\*Dia (\d) - ([\d\/]+)\*\*/g, '<br><span class="font-semibold text-blue-600">📅 Dia $1 - $2</span><ul>');
+    text = text.replace(/- \*\*(\d{2}h\d{2}) - ([^:]+):\*\*/g, '<li><span class="font-semibold">$1</span> – <span class="font-medium">$2</span>:');
+    text = text.replace(/(?=\*\*Dia|\*\* Este|Este é apenas|Espero que aproveite)/g, '</ul><br>');
+    text = text.replace(/- ([^-<\n].*?):\*\*/g, '<li>$1:</li>');
+    return text.replace(/\n/g, '<br>');
+  }
+</script>
 </body>
 </html>
