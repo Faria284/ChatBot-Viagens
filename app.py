@@ -52,7 +52,7 @@ def chat():
     if "chat_history" not in session:
         session["chat_history"] = []
 
-    # Guarda pergunta do utilizador
+    # Guarda a pergunta do utilizador
     session["chat_history"].append({"role": "User", "content": user_input})
 
     def get_response(prompt):
