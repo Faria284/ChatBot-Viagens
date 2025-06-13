@@ -1,4 +1,7 @@
 flask
 requests
+flask-session
 python-dotenv
-Flask-Session
+wikipedia
+serpapi
+langdetect

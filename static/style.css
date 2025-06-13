@@ -1,11 +1,20 @@
 ul {
-  list-style-type: disc;
-  padding-left: 1.2rem;
-  margin-bottom: 0.5rem;
+  list-style-type: none;
+  padding-left: 0;
+  margin-bottom: 1rem;
 }
 
 li {
-  margin-bottom: 0.3rem;
+  margin-bottom: 0.4rem;
+  padding-left: 1.2rem;
+  position: relative;
+}
+
+li::before {
+  content: "🟢";
+  position: absolute;
+  left: 0;
+  top: 0;
 }
 
 .font-semibold {
@@ -18,4 +27,12 @@ li {
 
 .text-blue-600 {
   color: #2563eb;
+}
+
+.dia-box {
+  background-color: #eff6ff;
+  border-left: 4px solid #3b82f6;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  margin-top: 1rem;
 }

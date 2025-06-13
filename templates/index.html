@@ -18,6 +18,8 @@
   </div>
 
   <script>
+  let chatHistory = [];
+
   async function sendMessage() {
     const input = document.getElementById("userInput");
     const chatBox = document.getElementById("chatBox");
@@ -25,6 +27,7 @@
     if (!input.value.trim()) return;
 
     const userMessage = input.value;
+    chatHistory.push({ role: "user", content: userMessage });
     chatBox.innerHTML += `<div class="text-right"><strong>Tu:</strong> ${userMessage}</div>`;
     input.value = "";
 
@@ -43,8 +46,9 @@
         return;
       }
 
+      chatHistory.push({ role: "assistant", content: data.reply });
       const formatted = formatResponse(data.reply || "");
-      chatBox.innerHTML += `<div><strong>Assistente:</strong> ${formatted}</div>`;
+      chatBox.innerHTML += `<div><strong>Assistente:</strong><br>${formatted}</div>`;
       chatBox.scrollTop = chatBox.scrollHeight;
 
     } catch (err) {
@@ -56,12 +60,12 @@
   function formatResponse(text) {
     if (!text || typeof text !== "string") return "<em>Resposta inválida</em>";
 
-    text = text.replace(/\*\*Dia (\d) - ([\d\/]+)\*\*/g, '<br><span class="font-semibold text-blue-600">📅 Dia $1 - $2</span><ul>');
-    text = text.replace(/- \*\*(\d{2}h\d{2}) - ([^:]+):\*\*/g, '<li><span class="font-semibold">$1</span> – <span class="font-medium">$2</span>:');
-    text = text.replace(/(?=\*\*Dia|\*\* Este|Este é apenas|Espero que aproveite)/g, '</ul><br>');
-    text = text.replace(/- ([^-<\n].*?):\*\*/g, '<li>$1:</li>');
+    text = text.replace(/\*\*Dia (\d) - ([\d\/]+)\*\*/g, '<div class="dia-box"><span class="font-semibold text-blue-600">📅 Dia $1 - $2</span><ul>');
+    text = text.replace(/\*\*(\d{2}:\d{2}) - (\d{2}:\d{2})\*\*/g, '<li><span class="font-semibold">$1 - $2</span></li>');
+    text = text.replace(/(?=\*\*Dia|\nEspero que|$)/g, '</ul></div><br>');
+
     return text.replace(/\n/g, '<br>');
   }
-</script>
+  </script>
 </body>
 </html>
