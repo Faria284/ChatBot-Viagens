@@ -3,13 +3,26 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Assistente de Viagens</title>
+  <title>VoyageBot - O teu assistente de viagens</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <style>
+    body {
+      background-image: url('https://img.freepik.com/fotos-premium/aviao-no-ceu-ao-por-do-sol_670147-10325.jpg');
+      background-size: cover;
+      background-position: center;
+      backdrop-filter: blur(2px);
+    }
+    .bg-glass {
+      background-color: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(6px);
+    }
+  </style>
 </head>
-<body class="bg-blue-50 text-gray-800">
-  <div class="max-w-xl mx-auto mt-10 p-4 bg-white rounded-xl shadow-md">
-    <h1 class="text-2xl font-bold text-center mb-4">✈️ Assistente de Viagens</h1>
+<body class="text-gray-800">
+  <div class="container max-w-xl mx-auto">
+    <h1 class="text-3xl font-bold text-center mb-4 text-blue-800">🌍 VoyageBot</h1>
+    <p class="text-center mb-6 text-gray-700 italic">O teu companheiro inteligente para planear aventuras inesquecíveis</p>
     <div id="chatBox" class="space-y-4 mb-4 overflow-y-auto max-h-96"></div>
     <div class="flex gap-2">
       <input id="userInput" type="text" class="flex-grow border p-2 rounded-md" placeholder="Escreve a tua pergunta..." />
@@ -18,54 +31,51 @@
   </div>
 
   <script>
-  let chatHistory = [];
+    let chatHistory = [];
 
-  async function sendMessage() {
-    const input = document.getElementById("userInput");
-    const chatBox = document.getElementById("chatBox");
+    async function sendMessage() {
+      const input = document.getElementById("userInput");
+      const chatBox = document.getElementById("chatBox");
 
-    if (!input.value.trim()) return;
+      if (!input.value.trim()) return;
 
-    const userMessage = input.value;
-    chatHistory.push({ role: "user", content: userMessage });
-    chatBox.innerHTML += `<div class="text-right"><strong>Tu:</strong> ${userMessage}</div>`;
-    input.value = "";
+      const userMessage = input.value;
+      chatHistory.push({ role: "user", content: userMessage });
+      chatBox.innerHTML += `<div class="text-right"><strong>Tu:</strong> ${userMessage}</div>`;
+      input.value = "";
 
-    try {
-      const response = await fetch("/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: userMessage })
-      });
+      try {
+        const response = await fetch("/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: userMessage })
+        });
 
-      const data = await response.json();
-      console.log("Resposta recebida:", data);
+        const data = await response.json();
 
-      if (!data.reply) {
-        chatBox.innerHTML += `<div><strong>Assistente:</strong> <em>Erro: resposta vazia.</em></div>`;
-        return;
+        if (!data.reply) {
+          chatBox.innerHTML += `<div><strong>VoyageBot:</strong> <em>Erro: resposta vazia.</em></div>`;
+          return;
+        }
+
+        chatHistory.push({ role: "assistant", content: data.reply });
+        const formatted = formatResponse(data.reply || "");
+        chatBox.innerHTML += `<div><strong>VoyageBot:</strong><br>${formatted}</div>`;
+        chatBox.scrollTop = chatBox.scrollHeight;
+
+      } catch (err) {
+        console.error("Erro ao enviar mensagem:", err);
+        chatBox.innerHTML += `<div><strong>VoyageBot:</strong> <em>Erro na comunicação com o servidor.</em></div>`;
       }
-
-      chatHistory.push({ role: "assistant", content: data.reply });
-      const formatted = formatResponse(data.reply || "");
-      chatBox.innerHTML += `<div><strong>Assistente:</strong><br>${formatted}</div>`;
-      chatBox.scrollTop = chatBox.scrollHeight;
-
-    } catch (err) {
-      console.error("Erro ao enviar mensagem:", err);
-      chatBox.innerHTML += `<div><strong>Assistente:</strong> <em>Erro na comunicação com o servidor.</em></div>`;
     }
-  }
 
-  function formatResponse(text) {
-    if (!text || typeof text !== "string") return "<em>Resposta inválida</em>";
-
-    text = text.replace(/\*\*Dia (\d) - ([\d\/]+)\*\*/g, '<div class="dia-box"><span class="font-semibold text-blue-600">📅 Dia $1 - $2</span><ul>');
-    text = text.replace(/\*\*(\d{2}:\d{2}) - (\d{2}:\d{2})\*\*/g, '<li><span class="font-semibold">$1 - $2</span></li>');
-    text = text.replace(/(?=\*\*Dia|\nEspero que|$)/g, '</ul></div><br>');
-
-    return text.replace(/\n/g, '<br>');
-  }
+    function formatResponse(text) {
+      if (!text || typeof text !== "string") return "<em>Resposta inválida</em>";
+      text = text.replace(/\*\*Dia (\d) - ([\d\/]+)\*\*/g, '<div class="dia-box"><span class="font-semibold text-blue-600">📅 Dia $1 - $2</span><ul>');
+      text = text.replace(/\*\*(\d{2}:\d{2}) - (\d{2}:\d{2})\*\*/g, '<li><span class="font-semibold">$1 - $2</span></li>');
+      text = text.replace(/(?=\*\*Dia|\nEspero que|$)/g, '</ul></div><br>');
+      return text.replace(/\n/g, '<br>');
+    }
   </script>
 </body>
 </html>
