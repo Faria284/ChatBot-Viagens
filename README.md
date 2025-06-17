@@ -97,8 +97,7 @@ Desenvolver um assistente de viagens inteligente baseado em LLM, com as seguinte
 ## Exemplos de Perguntas
 - `3 dias em Madrid`
 - `Quais os documentos para visitar o Brasil?`
-- `Sugere-me um restaurante em Paris`
-- `Como encontrar voos baratos?`
+- `Como encontrar voos baratos para a cidade **Destino**?`
 
 ---
 
